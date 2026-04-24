@@ -549,39 +549,42 @@ function redirect(string $path): never
 function render(string $title, callable $content): void
 {
     $flash = getFlash();
-    ?>
+?>
     <!DOCTYPE html>
     <html lang="pt-BR">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><?= h($title) ?> | <?= APP_NAME ?></title>
         <link rel="stylesheet" href="<?= h(appPath('public/assets/app.css')) ?>">
     </head>
+
     <body>
-    <div class="shell">
-        <aside class="sidebar">
-            <div>
-                <p class="eyebrow">MVP</p>
-                <h1><?= APP_NAME ?></h1>
-                <p class="muted">Controle simples, rapido e pronto para evoluir.</p>
-            </div>
-            <nav class="nav">
-                <a href="<?= h(appPath('index.php')) ?>">Dashboard</a>
-                <a href="<?= h(appPath('equipamento.php')) ?>">Novo equipamento</a>
-                <a href="<?= h(appPath('scanner.php')) ?>">Leitor QR</a>
-                <a href="<?= h(appPath('ocs.php')) ?>">Integracao OCS</a>
-            </nav>
-        </aside>
-        <main class="content">
-            <?php if ($flash): ?>
-                <div class="flash flash-<?= h($flash['type']) ?>"><?= h($flash['message']) ?></div>
-            <?php endif; ?>
-            <?php $content(); ?>
-        </main>
-    </div>
-    <script src="<?= h(appPath('public/assets/app.js')) ?>"></script>
+        <div class="shell">
+            <aside class="sidebar">
+                <div>
+                    <p class="eyebrow">MVP</p>
+                    <h1><?= APP_NAME ?></h1>
+                    <p class="muted">Controle simples, rapido e pronto para evoluir.</p>
+                </div>
+                <nav class="nav">
+                    <a href="<?= h(appPath('index.php')) ?>">Dashboard</a>
+                    <a href="<?= h(appPath('equipamento.php')) ?>">Novo equipamento</a>
+                    <a href="<?= h(appPath('scanner.php')) ?>">Leitor QR</a>
+                    <a href="<?= h(appPath('ocs.php')) ?>">Integracao OCS</a>
+                </nav>
+            </aside>
+            <main class="content">
+                <?php if ($flash): ?>
+                    <div class="flash flash-<?= h($flash['type']) ?>"><?= h($flash['message']) ?></div>
+                <?php endif; ?>
+                <?php $content(); ?>
+            </main>
+        </div>
+        <script src="<?= h(appPath('public/assets/app.js')) ?>"></script>
     </body>
+
     </html>
-    <?php
+<?php
 }
