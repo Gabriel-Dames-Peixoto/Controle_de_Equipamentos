@@ -5,7 +5,7 @@ declare(strict_types=1);
 require __DIR__ . '/src/bootstrap.php';
 
 render('Leitor QR', function (): void {
-    ?>
+?>
     <section class="hero compact mobile-hero">
         <div>
             <p class="eyebrow">Leitor QR</p>
@@ -40,5 +40,5 @@ render('Leitor QR', function (): void {
             <p class="muted">Se o navegador nao suportar leitura nativa de QR, digite o codigo impresso abaixo do QR.</p>
         </article>
     </section>
-    <?php
+<?php
 });

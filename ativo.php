@@ -16,7 +16,7 @@ $movements = movementsForEquipment($id);
 $qrUrl = equipmentQrUrl($equipment);
 
 render('Detalhe do equipamento', function () use ($equipment, $movements, $qrUrl): void {
-    ?>
+?>
     <section class="hero compact">
         <div>
             <p class="eyebrow"><?= h(strtoupper($equipment['code'])) ?></p>
@@ -36,12 +36,30 @@ render('Detalhe do equipamento', function () use ($equipment, $movements, $qrUrl
                 <span class="status status-<?= h($equipment['status']) ?>"><?= h($equipment['status']) ?></span>
             </div>
             <dl class="details-list">
-                <div><dt>Tipo</dt><dd><?= h(ucfirst($equipment['type'])) ?></dd></div>
-                <div><dt>Numero de serie</dt><dd><?= h($equipment['serial_number'] ?: 'Nao informado') ?></dd></div>
-                <div><dt>Responsavel</dt><dd><?= h($equipment['holder_name'] ?: 'Nao definido') ?></dd></div>
-                <div><dt>Localizacao</dt><dd><?= h($equipment['location_name'] ?: 'Nao informada') ?></dd></div>
-                <div><dt>Referencia OCS</dt><dd><?= h($equipment['ocs_reference'] ?: 'Nao vinculada') ?></dd></div>
-                <div><dt>Atualizado em</dt><dd><?= h(date('d/m/Y H:i', strtotime($equipment['updated_at']))) ?></dd></div>
+                <div>
+                    <dt>Tipo</dt>
+                    <dd><?= h(ucfirst($equipment['type'])) ?></dd>
+                </div>
+                <div>
+                    <dt>Numero de serie</dt>
+                    <dd><?= h($equipment['serial_number'] ?: 'Nao informado') ?></dd>
+                </div>
+                <div>
+                    <dt>Responsavel</dt>
+                    <dd><?= h($equipment['holder_name'] ?: 'Nao definido') ?></dd>
+                </div>
+                <div>
+                    <dt>Localizacao</dt>
+                    <dd><?= h($equipment['location_name'] ?: 'Nao informada') ?></dd>
+                </div>
+                <div>
+                    <dt>Referencia OCS</dt>
+                    <dd><?= h($equipment['ocs_reference'] ?: 'Nao vinculada') ?></dd>
+                </div>
+                <div>
+                    <dt>Atualizado em</dt>
+                    <dd><?= h(date('d/m/Y H:i', strtotime($equipment['updated_at']))) ?></dd>
+                </div>
             </dl>
             <?php if ($equipment['notes']): ?>
                 <div class="note-box"><?= nl2br(h($equipment['notes'])) ?></div>
@@ -121,5 +139,5 @@ render('Detalhe do equipamento', function () use ($equipment, $movements, $qrUrl
             </div>
         </article>
     </section>
-    <?php
+<?php
 });

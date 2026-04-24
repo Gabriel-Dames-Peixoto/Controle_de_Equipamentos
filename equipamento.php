@@ -26,7 +26,7 @@ $equipment ??= [
 ];
 
 render($id ? 'Editar equipamento' : 'Novo equipamento', function () use ($equipment, $id): void {
-    ?>
+?>
     <section class="hero compact">
         <div>
             <p class="eyebrow">Cadastro</p>
@@ -98,5 +98,5 @@ render($id ? 'Editar equipamento' : 'Novo equipamento', function () use ($equipm
             <button class="button primary" type="submit"><?= $id ? 'Salvar alteracoes' : 'Cadastrar equipamento' ?></button>
         </div>
     </form>
-    <?php
+<?php
 });

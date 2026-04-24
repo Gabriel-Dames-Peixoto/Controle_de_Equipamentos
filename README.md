@@ -86,4 +86,5 @@ O projeto foi pensado para crescimento incremental e ja inclui uma area de "suge
 - sincronizar com OCS por API
 - internalizar a geracao do QR Code
 - adicionar permissao por perfil
+
 #

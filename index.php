@@ -11,7 +11,7 @@ $stats = dashboardStats();
 $insightItems = insights();
 
 render('Dashboard', function () use ($equipments, $stats, $insightItems, $status, $search): void {
-    ?>
+?>
     <section class="hero">
         <div>
             <p class="eyebrow">Inventario fisico</p>
@@ -92,39 +92,39 @@ render('Dashboard', function () use ($equipments, $stats, $insightItems, $status
         <div class="table-wrap">
             <table>
                 <thead>
-                <tr>
-                    <th>Codigo</th>
-                    <th>Tipo</th>
-                    <th>Equipamento</th>
-                    <th>Responsavel</th>
-                    <th>Local</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
+                    <tr>
+                        <th>Codigo</th>
+                        <th>Tipo</th>
+                        <th>Equipamento</th>
+                        <th>Responsavel</th>
+                        <th>Local</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($equipments as $equipment): ?>
-                    <tr>
-                        <td><?= h($equipment['code']) ?></td>
-                        <td><?= h(ucfirst($equipment['type'])) ?></td>
-                        <td>
-                            <strong><?= h($equipment['name']) ?></strong>
-                            <small><?= h($equipment['serial_number'] ?: 'Sem numero de serie') ?></small>
-                        </td>
-                        <td><?= h($equipment['holder_name'] ?: 'Nao definido') ?></td>
-                        <td><?= h($equipment['location_name'] ?: 'Nao informado') ?></td>
-                        <td><span class="status status-<?= h($equipment['status']) ?>"><?= h($equipment['status']) ?></span></td>
-                        <td><a class="button ghost" href="<?= h(appPath('ativo.php')) ?>?id=<?= h((string) $equipment['id']) ?>">Abrir</a></td>
-                    </tr>
-                <?php endforeach; ?>
-                <?php if (!$equipments): ?>
-                    <tr>
-                        <td colspan="7" class="empty">Nenhum equipamento encontrado para os filtros atuais.</td>
-                    </tr>
-                <?php endif; ?>
+                    <?php foreach ($equipments as $equipment): ?>
+                        <tr>
+                            <td><?= h($equipment['code']) ?></td>
+                            <td><?= h(ucfirst($equipment['type'])) ?></td>
+                            <td>
+                                <strong><?= h($equipment['name']) ?></strong>
+                                <small><?= h($equipment['serial_number'] ?: 'Sem numero de serie') ?></small>
+                            </td>
+                            <td><?= h($equipment['holder_name'] ?: 'Nao definido') ?></td>
+                            <td><?= h($equipment['location_name'] ?: 'Nao informado') ?></td>
+                            <td><span class="status status-<?= h($equipment['status']) ?>"><?= h($equipment['status']) ?></span></td>
+                            <td><a class="button ghost" href="<?= h(appPath('ativo.php')) ?>?id=<?= h((string) $equipment['id']) ?>">Abrir</a></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <?php if (!$equipments): ?>
+                        <tr>
+                            <td colspan="7" class="empty">Nenhum equipamento encontrado para os filtros atuais.</td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </section>
-    <?php
+<?php
 });

@@ -8,7 +8,7 @@ $code = trim((string) ($_GET['code'] ?? ''));
 $equipment = $code !== '' ? equipmentByCode($code) : null;
 
 render('Modo QR', function () use ($equipment, $code): void {
-    ?>
+?>
     <section class="hero compact mobile-hero">
         <div>
             <p class="eyebrow">QR Mode</p>
@@ -31,11 +31,26 @@ render('Modo QR', function () use ($equipment, $code): void {
                     <span class="status status-<?= h($equipment['status']) ?>"><?= h($equipment['status']) ?></span>
                 </div>
                 <dl class="details-list">
-                    <div><dt>Codigo</dt><dd><?= h($equipment['code']) ?></dd></div>
-                    <div><dt>Tipo</dt><dd><?= h(ucfirst($equipment['type'])) ?></dd></div>
-                    <div><dt>Serie</dt><dd><?= h($equipment['serial_number'] ?: 'Nao informada') ?></dd></div>
-                    <div><dt>Responsavel</dt><dd><?= h($equipment['holder_name'] ?: 'Nao definido') ?></dd></div>
-                    <div><dt>Local</dt><dd><?= h($equipment['location_name'] ?: 'Nao informado') ?></dd></div>
+                    <div>
+                        <dt>Codigo</dt>
+                        <dd><?= h($equipment['code']) ?></dd>
+                    </div>
+                    <div>
+                        <dt>Tipo</dt>
+                        <dd><?= h(ucfirst($equipment['type'])) ?></dd>
+                    </div>
+                    <div>
+                        <dt>Serie</dt>
+                        <dd><?= h($equipment['serial_number'] ?: 'Nao informada') ?></dd>
+                    </div>
+                    <div>
+                        <dt>Responsavel</dt>
+                        <dd><?= h($equipment['holder_name'] ?: 'Nao definido') ?></dd>
+                    </div>
+                    <div>
+                        <dt>Local</dt>
+                        <dd><?= h($equipment['location_name'] ?: 'Nao informado') ?></dd>
+                    </div>
                 </dl>
             </article>
 
@@ -74,5 +89,5 @@ render('Modo QR', function () use ($equipment, $code): void {
             </article>
         </section>
     <?php endif; ?>
-    <?php
+<?php
 });
