@@ -69,7 +69,6 @@ render('Detalhe do equipamento', function () use ($equipment, $movements, $qrUrl
         <article class="card qr-card">
             <div class="section-title">
                 <h3>QR Code do equipamento</h3>
-                <span class="badge">Obrigatorio</span>
             </div>
             <img src="<?= h(qrImageUrl($equipment)) ?>" alt="QR Code do equipamento <?= h($equipment['code']) ?>">
             <p class="muted">Ao ler o QR, o colaborador abre a pagina de consulta e atualizacao rapida no celular.</p>
