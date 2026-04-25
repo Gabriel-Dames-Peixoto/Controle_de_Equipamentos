@@ -55,11 +55,7 @@ render('Dashboard', function () use ($equipments, $stats, $insightItems, $status
                     <select name="status">
                         <option value="">Todos</option>
                         <?php foreach (statuses() as $item): ?>
-<<<<<<< HEAD
                             <option value="<?= h($item) ?>" <?= $status === $item ? 'selected' : '' ?>><?= h(statusLabel($item)) ?></option>
-=======
-                            <option value="<?= h($item) ?>" <?= $status === $item ? 'selected' : '' ?>><?= h(ucfirst($item)) ?></option>
->>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                         <?php endforeach; ?>
                     </select>
                 </label>
@@ -110,22 +106,14 @@ render('Dashboard', function () use ($equipments, $stats, $insightItems, $status
                     <?php foreach ($equipments as $equipment): ?>
                         <tr>
                             <td><?= h($equipment['code']) ?></td>
-<<<<<<< HEAD
                             <td><?= h(equipmentTypeLabel($equipment['type'])) ?></td>
-=======
-                            <td><?= h(ucfirst($equipment['type'])) ?></td>
->>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                             <td>
                                 <strong><?= h($equipment['name']) ?></strong>
                                 <small><?= h($equipment['serial_number'] ?: 'Sem numero de serie') ?></small>
                             </td>
                             <td><?= h($equipment['holder_name'] ?: 'Nao definido') ?></td>
                             <td><?= h($equipment['location_name'] ?: 'Nao informado') ?></td>
-<<<<<<< HEAD
                             <td><span class="status status-<?= h($equipment['status']) ?>"><?= h(statusLabel($equipment['status'])) ?></span></td>
-=======
-                            <td><span class="status status-<?= h($equipment['status']) ?>"><?= h($equipment['status']) ?></span></td>
->>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                             <td><a class="button ghost" href="<?= h(appPath('ativo.php')) ?>?id=<?= h((string) $equipment['id']) ?>">Abrir</a></td>
                         </tr>
                     <?php endforeach; ?>

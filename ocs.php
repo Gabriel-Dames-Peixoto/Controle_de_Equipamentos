@@ -54,13 +54,14 @@ render('Integracao OCS', function () use ($comparisons): void {
                                 OCS: <?= h($row['ocs']['user_name']) ?> / <?= h($row['ocs']['location']) ?><br>
                                 Local: <?= h($row['local']['holder_name'] ?? '---') ?> / <?= h($row['local']['location_name'] ?? '---') ?>
                             </td>
-<<<<<<< HEAD
                             <td><span class="status status-<?= h($row['comparison_status']) ?>"><?= h(statusLabel($row['comparison_status'])) ?></span></td>
-=======
-                            <td><span class="status status-<?= h($row['comparison_status']) ?>"><?= h($row['comparison_status']) ?></span></td>
->>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                         </tr>
                     <?php endforeach; ?>
+                    <?php if (!$comparisons): ?>
+                        <tr>
+                            <td colspan="6" class="empty">Nenhum dado do OCS foi encontrado para comparacao.</td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>

@@ -136,6 +136,11 @@ render('Detalhe do equipamento', function () use ($equipment, $movements, $qrUrl
                         <p class="muted"><?= h($movement['change_reason'] ?: 'Sem observacoes') ?></p>
                     </div>
                 <?php endforeach; ?>
+                <?php if (!$movements): ?>
+                    <div class="timeline-item">
+                        <p class="muted">Nenhuma movimentacao registrada para este equipamento ate o momento.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </article>
     </section>
