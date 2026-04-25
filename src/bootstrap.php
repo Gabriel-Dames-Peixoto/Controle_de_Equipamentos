@@ -708,8 +708,19 @@ function render(string $title, callable $content): void
     </head>
 
     <body>
+        <button
+            class="menu-toggle"
+            type="button"
+            data-menu-toggle
+            aria-expanded="false"
+            aria-controls="sidebar-nav"
+            aria-label="Abrir menu"
+        >
+            Menu
+        </button>
+        <div class="sidebar-backdrop" data-menu-close hidden></div>
         <div class="shell">
-            <aside class="sidebar">
+            <aside class="sidebar" id="sidebar-nav">
                 <div>
                     <p class="eyebrow">MVP</p>
                     <h1><?= APP_NAME ?></h1>

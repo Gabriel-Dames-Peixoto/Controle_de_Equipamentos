@@ -21,7 +21,13 @@ render('Leitor QR', function (): void {
             </div>
             <video id="qr-video" playsinline muted></video>
             <p class="muted" id="scanner-status">Permita o acesso a camera para iniciar a leitura.</p>
-            <button class="button primary" type="button" data-start-scanner>Iniciar leitor</button>
+            <div class="actions">
+                <button class="button primary" type="button" data-start-scanner>Iniciar leitor</button>
+                <label class="button ghost file-button">
+                    Usar foto
+                    <input type="file" accept="image/*" capture="environment" data-qr-image hidden>
+                </label>
+            </div>
         </article>
 
         <article class="card">
