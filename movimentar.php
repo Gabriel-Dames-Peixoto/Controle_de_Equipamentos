@@ -7,8 +7,8 @@ require __DIR__ . '/src/bootstrap.php';
 $equipmentId = isset($_POST['equipment_id']) ? (int) $_POST['equipment_id'] : 0;
 
 try {
-    quickMoveEquipment($equipmentId, $_POST);
-    flash('Movimentacao registrada com sucesso.');
+    $changed = quickMoveEquipment($equipmentId, $_POST);
+    flash($changed ? 'Movimentacao registrada com sucesso.' : 'Nenhuma alteracao foi detectada.');
 } catch (Throwable $exception) {
     flash('Nao foi possivel registrar a movimentacao: ' . $exception->getMessage(), 'error');
 }

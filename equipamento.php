@@ -49,7 +49,7 @@ render($id ? 'Editar equipamento' : 'Novo equipamento', function () use ($equipm
             Tipo
             <select name="type" required>
                 <?php foreach (equipmentTypes() as $type): ?>
-                    <option value="<?= h($type) ?>" <?= $equipment['type'] === $type ? 'selected' : '' ?>><?= h(ucfirst($type)) ?></option>
+                    <option value="<?= h($type) ?>" <?= $equipment['type'] === $type ? 'selected' : '' ?>><?= h(equipmentTypeLabel($type)) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
@@ -68,7 +68,7 @@ render($id ? 'Editar equipamento' : 'Novo equipamento', function () use ($equipm
             Status
             <select name="status" required>
                 <?php foreach (statuses() as $status): ?>
-                    <option value="<?= h($status) ?>" <?= $equipment['status'] === $status ? 'selected' : '' ?>><?= h(ucfirst($status)) ?></option>
+                    <option value="<?= h($status) ?>" <?= $equipment['status'] === $status ? 'selected' : '' ?>><?= h(statusLabel($status)) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>

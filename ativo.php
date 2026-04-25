@@ -33,12 +33,12 @@ render('Detalhe do equipamento', function () use ($equipment, $movements, $qrUrl
         <article class="card">
             <div class="section-title">
                 <h3>Dados atuais</h3>
-                <span class="status status-<?= h($equipment['status']) ?>"><?= h($equipment['status']) ?></span>
+                <span class="status status-<?= h($equipment['status']) ?>"><?= h(statusLabel($equipment['status'])) ?></span>
             </div>
             <dl class="details-list">
                 <div>
                     <dt>Tipo</dt>
-                    <dd><?= h(ucfirst($equipment['type'])) ?></dd>
+                    <dd><?= h(equipmentTypeLabel($equipment['type'])) ?></dd>
                 </div>
                 <div>
                     <dt>Numero de serie</dt>
@@ -96,7 +96,7 @@ render('Detalhe do equipamento', function () use ($equipment, $movements, $qrUrl
                     Status atual
                     <select name="status">
                         <?php foreach (statuses() as $status): ?>
-                            <option value="<?= h($status) ?>" <?= $equipment['status'] === $status ? 'selected' : '' ?>><?= h(ucfirst($status)) ?></option>
+                            <option value="<?= h($status) ?>" <?= $equipment['status'] === $status ? 'selected' : '' ?>><?= h(statusLabel($status)) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </label>

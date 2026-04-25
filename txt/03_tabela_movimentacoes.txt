@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS `movimentacoes` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `equipment_id` INT NOT NULL,
+    `previous_holder` VARCHAR(150) DEFAULT '',
+    `new_holder` VARCHAR(150) DEFAULT '',
+    `previous_location` VARCHAR(180) DEFAULT '',
+    `new_location` VARCHAR(180) DEFAULT '',
+    `previous_status` VARCHAR(40) DEFAULT '',
+    `new_status` VARCHAR(40) DEFAULT '',
+    `change_reason` TEXT DEFAULT NULL,
+    `changed_at` DATETIME NOT NULL,
+    CONSTRAINT `fk_movimentacoes_equipamento`
+        FOREIGN KEY (`equipment_id`) REFERENCES `equipamentos`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

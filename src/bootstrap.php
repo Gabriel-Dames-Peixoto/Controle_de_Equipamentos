@@ -61,9 +61,11 @@ function initializeDatabaseServer(): void
 
 function initializeDatabase(PDO $pdo): void
 {
+    migrateLegacyTableNames($pdo);
+
     $pdo->exec(
         <<<SQL
-        CREATE TABLE IF NOT EXISTS equipments (
+        CREATE TABLE IF NOT EXISTS equipamentos (
             id INT AUTO_INCREMENT PRIMARY KEY,
             code VARCHAR(60) NOT NULL UNIQUE,
             type VARCHAR(40) NOT NULL,
@@ -78,7 +80,7 @@ function initializeDatabase(PDO $pdo): void
             updated_at DATETIME NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-        CREATE TABLE IF NOT EXISTS movements (
+        CREATE TABLE IF NOT EXISTS movimentacoes (
             id INT AUTO_INCREMENT PRIMARY KEY,
             equipment_id INT NOT NULL,
             previous_holder VARCHAR(150) DEFAULT '',
@@ -89,8 +91,8 @@ function initializeDatabase(PDO $pdo): void
             new_status VARCHAR(40) DEFAULT '',
             change_reason TEXT DEFAULT NULL,
             changed_at DATETIME NOT NULL,
-            CONSTRAINT fk_movements_equipment
-                FOREIGN KEY (equipment_id) REFERENCES equipments(id) ON DELETE CASCADE
+            CONSTRAINT fk_movimentacoes_equipamento
+                FOREIGN KEY (equipment_id) REFERENCES equipamentos(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL
     );
@@ -99,9 +101,78 @@ function initializeDatabase(PDO $pdo): void
     seedOcsMock();
 }
 
+function migrateLegacyTableNames(PDO $pdo): void
+{
+    $hasEquipamentos = tableExists($pdo, 'equipamentos');
+    $hasEquipments = tableExists($pdo, 'equipments');
+
+    if (!$hasEquipamentos && $hasEquipments) {
+        $pdo->exec('RENAME TABLE equipments TO equipamentos');
+        $hasEquipamentos = true;
+    }
+
+    $hasMovimentacoes = tableExists($pdo, 'movimentacoes');
+    $hasMovements = tableExists($pdo, 'movements');
+
+    if (!$hasMovimentacoes && $hasMovements) {
+        if (foreignKeyExists($pdo, 'movements', 'fk_movements_equipment')) {
+            $pdo->exec('ALTER TABLE movements DROP FOREIGN KEY fk_movements_equipment');
+        }
+
+        $pdo->exec('RENAME TABLE movements TO movimentacoes');
+        $hasMovimentacoes = true;
+    }
+
+    if ($hasMovimentacoes && !foreignKeyExists($pdo, 'movimentacoes', 'fk_movimentacoes_equipamento')) {
+        if (foreignKeyExists($pdo, 'movimentacoes', 'fk_movements_equipment')) {
+            $pdo->exec('ALTER TABLE movimentacoes DROP FOREIGN KEY fk_movements_equipment');
+        }
+
+        $pdo->exec(
+            'ALTER TABLE movimentacoes
+             ADD CONSTRAINT fk_movimentacoes_equipamento
+             FOREIGN KEY (equipment_id) REFERENCES equipamentos(id) ON DELETE CASCADE'
+        );
+    }
+}
+
+function tableExists(PDO $pdo, string $tableName): bool
+{
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*)
+         FROM information_schema.tables
+         WHERE table_schema = :schema AND table_name = :table'
+    );
+    $stmt->execute([
+        'schema' => DB_NAME,
+        'table' => $tableName,
+    ]);
+
+    return (int) $stmt->fetchColumn() > 0;
+}
+
+function foreignKeyExists(PDO $pdo, string $tableName, string $constraintName): bool
+{
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*)
+         FROM information_schema.table_constraints
+         WHERE constraint_schema = :schema
+           AND table_name = :table
+           AND constraint_name = :constraint
+           AND constraint_type = \'FOREIGN KEY\''
+    );
+    $stmt->execute([
+        'schema' => DB_NAME,
+        'table' => $tableName,
+        'constraint' => $constraintName,
+    ]);
+
+    return (int) $stmt->fetchColumn() > 0;
+}
+
 function seedDatabase(PDO $pdo): void
 {
-    $count = (int) $pdo->query('SELECT COUNT(*) FROM equipments')->fetchColumn();
+    $count = (int) $pdo->query('SELECT COUNT(*) FROM equipamentos')->fetchColumn();
     if ($count > 0) {
         return;
     }
@@ -144,12 +215,12 @@ function seedDatabase(PDO $pdo): void
     ];
 
     $insert = $pdo->prepare(
-        'INSERT INTO equipments (code, type, name, serial_number, status, holder_name, location_name, notes, ocs_reference, created_at, updated_at)
+        'INSERT INTO equipamentos (code, type, name, serial_number, status, holder_name, location_name, notes, ocs_reference, created_at, updated_at)
          VALUES (:code, :type, :name, :serial_number, :status, :holder_name, :location_name, :notes, :ocs_reference, :created_at, :updated_at)'
     );
 
     $movementInsert = $pdo->prepare(
-        'INSERT INTO movements (equipment_id, previous_holder, new_holder, previous_location, new_location, previous_status, new_status, change_reason, changed_at)
+        'INSERT INTO movimentacoes (equipment_id, previous_holder, new_holder, previous_location, new_location, previous_status, new_status, change_reason, changed_at)
          VALUES (:equipment_id, :previous_holder, :new_holder, :previous_location, :new_location, :previous_status, :new_status, :change_reason, :changed_at)'
     );
 
@@ -214,7 +285,7 @@ function seedOcsMock(): void
 
 function allEquipments(?string $statusFilter = null, ?string $search = null): array
 {
-    $sql = 'SELECT * FROM equipments WHERE 1 = 1';
+    $sql = 'SELECT * FROM equipamentos WHERE 1 = 1';
     $params = [];
 
     if ($statusFilter) {
@@ -237,7 +308,7 @@ function allEquipments(?string $statusFilter = null, ?string $search = null): ar
 
 function equipmentById(int $id): ?array
 {
-    $stmt = db()->prepare('SELECT * FROM equipments WHERE id = :id');
+    $stmt = db()->prepare('SELECT * FROM equipamentos WHERE id = :id');
     $stmt->execute(['id' => $id]);
     $equipment = $stmt->fetch();
 
@@ -246,7 +317,7 @@ function equipmentById(int $id): ?array
 
 function equipmentByCode(string $code): ?array
 {
-    $stmt = db()->prepare('SELECT * FROM equipments WHERE code = :code');
+    $stmt = db()->prepare('SELECT * FROM equipamentos WHERE code = :code');
     $stmt->execute(['code' => trim($code)]);
     $equipment = $stmt->fetch();
 
@@ -255,7 +326,7 @@ function equipmentByCode(string $code): ?array
 
 function movementsForEquipment(int $equipmentId): array
 {
-    $stmt = db()->prepare('SELECT * FROM movements WHERE equipment_id = :equipment_id ORDER BY changed_at DESC, id DESC');
+    $stmt = db()->prepare('SELECT * FROM movimentacoes WHERE equipment_id = :equipment_id ORDER BY changed_at DESC, id DESC');
     $stmt->execute(['equipment_id' => $equipmentId]);
 
     return $stmt->fetchAll();
@@ -264,10 +335,10 @@ function movementsForEquipment(int $equipmentId): array
 function dashboardStats(): array
 {
     $stats = [
-        'total' => (int) db()->query('SELECT COUNT(*) FROM equipments')->fetchColumn(),
-        'ativos' => (int) db()->query("SELECT COUNT(*) FROM equipments WHERE status = 'ativo'")->fetchColumn(),
-        'manutencao' => (int) db()->query("SELECT COUNT(*) FROM equipments WHERE status = 'manutencao'")->fetchColumn(),
-        'sem_responsavel' => (int) db()->query("SELECT COUNT(*) FROM equipments WHERE TRIM(holder_name) = ''")->fetchColumn(),
+        'total' => (int) db()->query('SELECT COUNT(*) FROM equipamentos')->fetchColumn(),
+        'ativos' => (int) db()->query("SELECT COUNT(*) FROM equipamentos WHERE status = 'ativo'")->fetchColumn(),
+        'manutencao' => (int) db()->query("SELECT COUNT(*) FROM equipamentos WHERE status = 'manutencao'")->fetchColumn(),
+        'sem_responsavel' => (int) db()->query("SELECT COUNT(*) FROM equipamentos WHERE TRIM(holder_name) = ''")->fetchColumn(),
     ];
 
     return $stats;
@@ -277,7 +348,7 @@ function insights(): array
 {
     $items = [];
 
-    $withoutHolder = db()->query("SELECT code, name FROM equipments WHERE TRIM(holder_name) = '' ORDER BY updated_at DESC")->fetchAll();
+    $withoutHolder = db()->query("SELECT code, name FROM equipamentos WHERE TRIM(holder_name) = '' ORDER BY updated_at DESC")->fetchAll();
     foreach ($withoutHolder as $equipment) {
         $items[] = [
             'level' => 'warning',
@@ -286,7 +357,7 @@ function insights(): array
         ];
     }
 
-    $maintenance = db()->query("SELECT code, name, location_name FROM equipments WHERE status = 'manutencao' ORDER BY updated_at ASC")->fetchAll();
+    $maintenance = db()->query("SELECT code, name, location_name FROM equipamentos WHERE status = 'manutencao' ORDER BY updated_at ASC")->fetchAll();
     foreach ($maintenance as $equipment) {
         $items[] = [
             'level' => 'info',
@@ -305,10 +376,10 @@ function saveEquipment(array $payload, ?int $id = null): int
 
     $data = [
         'code' => strtoupper(trim((string) ($payload['code'] ?? ''))),
-        'type' => trim((string) ($payload['type'] ?? 'computador')),
+        'type' => normalizeEquipmentType((string) ($payload['type'] ?? 'computador')),
         'name' => trim((string) ($payload['name'] ?? '')),
         'serial_number' => trim((string) ($payload['serial_number'] ?? '')),
-        'status' => trim((string) ($payload['status'] ?? 'ativo')),
+        'status' => normalizeStatus((string) ($payload['status'] ?? 'ativo')),
         'holder_name' => trim((string) ($payload['holder_name'] ?? '')),
         'location_name' => trim((string) ($payload['location_name'] ?? '')),
         'notes' => trim((string) ($payload['notes'] ?? '')),
@@ -319,11 +390,13 @@ function saveEquipment(array $payload, ?int $id = null): int
         throw new InvalidArgumentException('Codigo e nome sao obrigatorios.');
     }
 
+    validateEquipmentData($data);
+
     $pdo = db();
 
     if ($current) {
         $stmt = $pdo->prepare(
-            'UPDATE equipments
+            'UPDATE equipamentos
              SET code = :code, type = :type, name = :name, serial_number = :serial_number, status = :status,
                  holder_name = :holder_name, location_name = :location_name, notes = :notes, ocs_reference = :ocs_reference, updated_at = :updated_at
              WHERE id = :id'
@@ -332,7 +405,7 @@ function saveEquipment(array $payload, ?int $id = null): int
         $equipmentId = $id;
     } else {
         $stmt = $pdo->prepare(
-            'INSERT INTO equipments (code, type, name, serial_number, status, holder_name, location_name, notes, ocs_reference, created_at, updated_at)
+            'INSERT INTO equipamentos (code, type, name, serial_number, status, holder_name, location_name, notes, ocs_reference, created_at, updated_at)
              VALUES (:code, :type, :name, :serial_number, :status, :holder_name, :location_name, :notes, :ocs_reference, :created_at, :updated_at)'
         );
         $stmt->execute($data + ['created_at' => $now, 'updated_at' => $now]);
@@ -365,7 +438,7 @@ function saveEquipment(array $payload, ?int $id = null): int
 function recordMovement(int $equipmentId, array $payload): void
 {
     $stmt = db()->prepare(
-        'INSERT INTO movements (equipment_id, previous_holder, new_holder, previous_location, new_location, previous_status, new_status, change_reason, changed_at)
+        'INSERT INTO movimentacoes (equipment_id, previous_holder, new_holder, previous_location, new_location, previous_status, new_status, change_reason, changed_at)
          VALUES (:equipment_id, :previous_holder, :new_holder, :previous_location, :new_location, :previous_status, :new_status, :change_reason, :changed_at)'
     );
 
@@ -382,7 +455,7 @@ function recordMovement(int $equipmentId, array $payload): void
     ]);
 }
 
-function quickMoveEquipment(int $equipmentId, array $payload): void
+function quickMoveEquipment(int $equipmentId, array $payload): bool
 {
     $equipment = equipmentById($equipmentId);
     if (!$equipment) {
@@ -391,11 +464,31 @@ function quickMoveEquipment(int $equipmentId, array $payload): void
 
     $newHolder = trim((string) ($payload['holder_name'] ?? ''));
     $newLocation = trim((string) ($payload['location_name'] ?? ''));
-    $newStatus = trim((string) ($payload['status'] ?? $equipment['status']));
+    $newStatus = normalizeStatus((string) ($payload['status'] ?? $equipment['status']));
     $reason = trim((string) ($payload['change_reason'] ?? 'Atualizacao rapida via QR Code.'));
 
+    validateEquipmentData([
+        'code' => $equipment['code'],
+        'type' => $equipment['type'],
+        'name' => $equipment['name'],
+        'serial_number' => $equipment['serial_number'],
+        'status' => $newStatus,
+        'holder_name' => $newHolder,
+        'location_name' => $newLocation,
+        'notes' => $equipment['notes'],
+        'ocs_reference' => $equipment['ocs_reference'],
+    ]);
+
+    $hasChanges = $equipment['holder_name'] !== $newHolder
+        || $equipment['location_name'] !== $newLocation
+        || $equipment['status'] !== $newStatus;
+
+    if (!$hasChanges) {
+        return false;
+    }
+
     $stmt = db()->prepare(
-        'UPDATE equipments SET holder_name = :holder_name, location_name = :location_name, status = :status, updated_at = :updated_at WHERE id = :id'
+        'UPDATE equipamentos SET holder_name = :holder_name, location_name = :location_name, status = :status, updated_at = :updated_at WHERE id = :id'
     );
 
     $stmt->execute([
@@ -415,6 +508,8 @@ function quickMoveEquipment(int $equipmentId, array $payload): void
         'new_status' => $newStatus,
         'change_reason' => $reason,
     ]);
+
+    return true;
 }
 
 function statuses(): array
@@ -425,6 +520,58 @@ function statuses(): array
 function equipmentTypes(): array
 {
     return ['computador', 'celular', 'tablet'];
+}
+
+function statusLabel(string $status): string
+{
+    $labels = [
+        'ativo' => 'Ativo',
+        'manutencao' => 'Em manutencao',
+        'reserva' => 'Reserva',
+        'baixado' => 'Baixado',
+        'ok' => 'OK',
+        'divergente' => 'Divergente',
+        'nao_encontrado' => 'Nao encontrado',
+    ];
+
+    return $labels[$status] ?? ucfirst($status);
+}
+
+function equipmentTypeLabel(string $type): string
+{
+    $labels = [
+        'computador' => 'Computador',
+        'celular' => 'Celular',
+        'tablet' => 'Tablet',
+    ];
+
+    return $labels[$type] ?? ucfirst($type);
+}
+
+function normalizeStatus(string $status): string
+{
+    $normalized = strtolower(trim($status));
+    $aliases = [
+        'em manutencao' => 'manutencao',
+    ];
+
+    return $aliases[$normalized] ?? $normalized;
+}
+
+function normalizeEquipmentType(string $type): string
+{
+    return strtolower(trim($type));
+}
+
+function validateEquipmentData(array $data): void
+{
+    if (!in_array($data['type'], equipmentTypes(), true)) {
+        throw new InvalidArgumentException('Tipo de equipamento invalido.');
+    }
+
+    if (!in_array($data['status'], statuses(), true)) {
+        throw new InvalidArgumentException('Status do equipamento invalido.');
+    }
 }
 
 function ocsEntries(): array

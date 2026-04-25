@@ -55,7 +55,7 @@ render('Dashboard', function () use ($equipments, $stats, $insightItems, $status
                     <select name="status">
                         <option value="">Todos</option>
                         <?php foreach (statuses() as $item): ?>
-                            <option value="<?= h($item) ?>" <?= $status === $item ? 'selected' : '' ?>><?= h(ucfirst($item)) ?></option>
+                            <option value="<?= h($item) ?>" <?= $status === $item ? 'selected' : '' ?>><?= h(statusLabel($item)) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </label>
@@ -106,14 +106,14 @@ render('Dashboard', function () use ($equipments, $stats, $insightItems, $status
                     <?php foreach ($equipments as $equipment): ?>
                         <tr>
                             <td><?= h($equipment['code']) ?></td>
-                            <td><?= h(ucfirst($equipment['type'])) ?></td>
+                            <td><?= h(equipmentTypeLabel($equipment['type'])) ?></td>
                             <td>
                                 <strong><?= h($equipment['name']) ?></strong>
                                 <small><?= h($equipment['serial_number'] ?: 'Sem numero de serie') ?></small>
                             </td>
                             <td><?= h($equipment['holder_name'] ?: 'Nao definido') ?></td>
                             <td><?= h($equipment['location_name'] ?: 'Nao informado') ?></td>
-                            <td><span class="status status-<?= h($equipment['status']) ?>"><?= h($equipment['status']) ?></span></td>
+                            <td><span class="status status-<?= h($equipment['status']) ?>"><?= h(statusLabel($equipment['status'])) ?></span></td>
                             <td><a class="button ghost" href="<?= h(appPath('ativo.php')) ?>?id=<?= h((string) $equipment['id']) ?>">Abrir</a></td>
                         </tr>
                     <?php endforeach; ?>

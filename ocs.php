@@ -54,7 +54,7 @@ render('Integracao OCS', function () use ($comparisons): void {
                                 OCS: <?= h($row['ocs']['user_name']) ?> / <?= h($row['ocs']['location']) ?><br>
                                 Local: <?= h($row['local']['holder_name'] ?? '---') ?> / <?= h($row['local']['location_name'] ?? '---') ?>
                             </td>
-                            <td><span class="status status-<?= h($row['comparison_status']) ?>"><?= h($row['comparison_status']) ?></span></td>
+                            <td><span class="status status-<?= h($row['comparison_status']) ?>"><?= h(statusLabel($row['comparison_status'])) ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

@@ -1,0 +1,6 @@
+INSERT INTO `equipamentos`
+(`code`, `type`, `name`, `serial_number`, `status`, `holder_name`, `location_name`, `notes`, `ocs_reference`, `created_at`, `updated_at`)
+VALUES
+('EQP-001', 'computador', 'Notebook Dell Latitude 5420', 'DL5420-ABC-001', 'ativo', 'Ana Souza', 'Financeiro - Sala 2', 'Equipamento principal da analista financeira.', 'OCS-9001', NOW(), NOW()),
+('EQP-002', 'celular', 'Samsung Galaxy A54', 'SAM-A54-7788', 'ativo', 'Carlos Lima', 'Operacoes - Unidade Centro', 'Aparelho corporativo com chip de plantao.', 'OCS-9002', NOW(), NOW()),
+('EQP-003', 'tablet', 'iPad 9a geracao', 'IPAD-0900-7781', 'manutencao', '', 'TI - Bancada', 'Tela com trinca. Aguardando orcamento.', '', NOW(), NOW());
