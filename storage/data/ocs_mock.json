@@ -1,0 +1,29 @@
+[
+    {
+        "ocs_id": "OCS-9001",
+        "asset_tag": "EQP-001",
+        "device_name": "Notebook Dell Latitude 5420",
+        "serial_number": "DL5420-ABC-001",
+        "user_name": "Ana Souza",
+        "location": "Financeiro - Sala 2",
+        "last_sync": "2026-04-20 09:10:00"
+    },
+    {
+        "ocs_id": "OCS-9002",
+        "asset_tag": "EQP-002",
+        "device_name": "Samsung Galaxy A54",
+        "serial_number": "SAM-A54-7788",
+        "user_name": "Carlos Lima",
+        "location": "Operacoes - Unidade Centro",
+        "last_sync": "2026-04-22 16:45:00"
+    },
+    {
+        "ocs_id": "OCS-9003",
+        "asset_tag": "EQP-099",
+        "device_name": "Notebook Lenovo V14",
+        "serial_number": "LEN-V14-3344",
+        "user_name": "Nao mapeado",
+        "location": "Comercial - Sala 1",
+        "last_sync": "2026-04-18 11:25:00"
+    }
+]
