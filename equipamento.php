@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/src/bootstrap.ph';
+require __DIR__ . '/src/bootstrap.php';
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 $equipment = $id ? equipmentById($id) : null;
@@ -49,7 +49,11 @@ render($id ? 'Editar equipamento' : 'Novo equipamento', function () use ($equipm
             Tipo
             <select name="type" required>
                 <?php foreach (equipmentTypes() as $type): ?>
+<<<<<<< HEAD
                     <option value="<?= h($type) ?>" <?= $equipment['type'] === $type ? 'selected' : '' ?>><?= h(equipmentTypeLabel($type)) ?></option>
+=======
+                    <option value="<?= h($type) ?>" <?= $equipment['type'] === $type ? 'selected' : '' ?>><?= h(ucfirst($type)) ?></option>
+>>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                 <?php endforeach; ?>
             </select>
         </label>
@@ -68,7 +72,11 @@ render($id ? 'Editar equipamento' : 'Novo equipamento', function () use ($equipm
             Status
             <select name="status" required>
                 <?php foreach (statuses() as $status): ?>
+<<<<<<< HEAD
                     <option value="<?= h($status) ?>" <?= $equipment['status'] === $status ? 'selected' : '' ?>><?= h(statusLabel($status)) ?></option>
+=======
+                    <option value="<?= h($status) ?>" <?= $equipment['status'] === $status ? 'selected' : '' ?>><?= h(ucfirst($status)) ?></option>
+>>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                 <?php endforeach; ?>
             </select>
         </label>

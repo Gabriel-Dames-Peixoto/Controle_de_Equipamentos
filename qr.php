@@ -28,7 +28,11 @@ render('Modo QR', function () use ($equipment, $code): void {
             <article class="card">
                 <div class="section-title">
                     <h3>Resumo do ativo</h3>
+<<<<<<< HEAD
                     <span class="status status-<?= h($equipment['status']) ?>"><?= h(statusLabel($equipment['status'])) ?></span>
+=======
+                    <span class="status status-<?= h($equipment['status']) ?>"><?= h($equipment['status']) ?></span>
+>>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                 </div>
                 <dl class="details-list">
                     <div>
@@ -37,7 +41,11 @@ render('Modo QR', function () use ($equipment, $code): void {
                     </div>
                     <div>
                         <dt>Tipo</dt>
+<<<<<<< HEAD
                         <dd><?= h(equipmentTypeLabel($equipment['type'])) ?></dd>
+=======
+                        <dd><?= h(ucfirst($equipment['type'])) ?></dd>
+>>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                     </div>
                     <div>
                         <dt>Serie</dt>
@@ -74,7 +82,11 @@ render('Modo QR', function () use ($equipment, $code): void {
                         Status
                         <select name="status">
                             <?php foreach (statuses() as $status): ?>
+<<<<<<< HEAD
                                 <option value="<?= h($status) ?>" <?= $equipment['status'] === $status ? 'selected' : '' ?>><?= h(statusLabel($status)) ?></option>
+=======
+                                <option value="<?= h($status) ?>" <?= $equipment['status'] === $status ? 'selected' : '' ?>><?= h(ucfirst($status)) ?></option>
+>>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
                             <?php endforeach; ?>
                         </select>
                     </label>

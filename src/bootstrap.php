@@ -209,7 +209,7 @@ function seedDatabase(PDO $pdo): void
             'status' => 'manutencao',
             'holder_name' => '',
             'location_name' => 'TI - Bancada',
-            'notes' => 'Tela com trinca. Aguardando orçamento.',
+            'notes' => 'Tela com trinca. Aguardando orcamento.',
             'ocs_reference' => '',
         ],
     ];

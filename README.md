@@ -22,7 +22,10 @@ Essa escolha prioriza rapidez de entrega, simplicidade operacional e facilidade 
 2. Garanta que o MySQL do Laragon esteja iniciado.
 3. Acesse `http://localhost/Controle%20de%20equipamentos/index.php`
 4. O banco `controle_equipamentos` e os dados iniciais sao criados automaticamente no primeiro acesso.
+<<<<<<< HEAD
 5. A pasta `txt/` contem a estrutura MySQL do projeto em arquivos texto separados, com as tabelas em portugues.
+=======
+>>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
 
 Se quiser subir sem Laragon:
 
@@ -75,7 +78,10 @@ Observacao: a imagem do QR e gerada via [QuickChart](https://quickchart.io/) nes
 - `scanner.php`: leitura por camera no navegador
 - `ocs.php`: comparativo com OCS
 - `src/bootstrap.php`: conexao MySQL, criacao do banco, seeds e funcoes compartilhadas
+<<<<<<< HEAD
 - `txt/`: scripts texto com banco, tabelas `equipamentos` e `movimentacoes`, e seed inicial em MySQL
+=======
+>>>>>>> 64008ce534cb8635856c9f616a1c1fa1d0899102
 
 ## Diferencial de IA
 
