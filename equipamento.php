@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/src/bootstrap.php';
+require __DIR__ . '/src/bootstrap.ph';
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 $equipment = $id ? equipmentById($id) : null;
