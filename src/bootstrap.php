@@ -724,7 +724,7 @@ function render(string $title, callable $content): void
                 <div>
                     <p class="eyebrow">MVP</p>
                     <h1><?= APP_NAME ?></h1>
-                    <p class="muted">Controle simples, rapido e pronto para evoluir.</p>
+                    <p class="muted"></p>
                 </div>
                 <nav class="nav">
                     <a href="<?= h(appPath('index.php')) ?>">Dashboard</a>
