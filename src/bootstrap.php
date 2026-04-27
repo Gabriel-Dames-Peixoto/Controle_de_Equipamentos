@@ -9,6 +9,12 @@ const DB_NAME = 'controle_equipamentos';
 const DB_USER = 'root';
 const DB_PASS = '';
 const OCS_MOCK_PATH = __DIR__ . '/../storage/data/ocs_mock.json';
+const TABLE_EQUIPAMENTOS = 'equipamentos';
+const TABLE_MOVIMENTACOES = 'movimentacoes';
+const LEGACY_TABLE_EQUIPMENTS = 'equipments';
+const LEGACY_TABLE_MOVEMENTS = 'movements';
+const FK_MOVIMENTACOES_EQUIPAMENTO = 'fk_movimentacoes_equipamento';
+const LEGACY_FK_MOVEMENTS_EQUIPMENT = 'fk_movements_equipment';
 
 function db(): PDO
 {
@@ -65,7 +71,7 @@ function initializeDatabase(PDO $pdo): void
 
     $pdo->exec(
         <<<SQL
-        CREATE TABLE IF NOT EXISTS equipamentos (
+        CREATE TABLE IF NOT EXISTS %s (
             id INT AUTO_INCREMENT PRIMARY KEY,
             code VARCHAR(60) NOT NULL UNIQUE,
             type VARCHAR(40) NOT NULL,
@@ -80,7 +86,7 @@ function initializeDatabase(PDO $pdo): void
             updated_at DATETIME NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-        CREATE TABLE IF NOT EXISTS movimentacoes (
+        CREATE TABLE IF NOT EXISTS %s (
             id INT AUTO_INCREMENT PRIMARY KEY,
             equipment_id INT NOT NULL,
             previous_holder VARCHAR(150) DEFAULT '',
@@ -91,10 +97,15 @@ function initializeDatabase(PDO $pdo): void
             new_status VARCHAR(40) DEFAULT '',
             change_reason TEXT DEFAULT NULL,
             changed_at DATETIME NOT NULL,
-            CONSTRAINT fk_movimentacoes_equipamento
-                FOREIGN KEY (equipment_id) REFERENCES equipamentos(id) ON DELETE CASCADE
+            CONSTRAINT %s
+                FOREIGN KEY (equipment_id) REFERENCES %s(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL
+        ,
+        TABLE_EQUIPAMENTOS,
+        TABLE_MOVIMENTACOES,
+        FK_MOVIMENTACOES_EQUIPAMENTO,
+        TABLE_EQUIPAMENTOS
     );
 
     seedDatabase($pdo);
@@ -103,36 +114,47 @@ function initializeDatabase(PDO $pdo): void
 
 function migrateLegacyTableNames(PDO $pdo): void
 {
-    $hasEquipamentos = tableExists($pdo, 'equipamentos');
-    $hasEquipments = tableExists($pdo, 'equipments');
+    $hasEquipamentos = tableExists($pdo, TABLE_EQUIPAMENTOS);
+    $hasEquipments = tableExists($pdo, LEGACY_TABLE_EQUIPMENTS);
 
     if (!$hasEquipamentos && $hasEquipments) {
-        $pdo->exec('RENAME TABLE equipments TO equipamentos');
+        $pdo->exec(sprintf('RENAME TABLE %s TO %s', LEGACY_TABLE_EQUIPMENTS, TABLE_EQUIPAMENTOS));
         $hasEquipamentos = true;
     }
 
-    $hasMovimentacoes = tableExists($pdo, 'movimentacoes');
-    $hasMovements = tableExists($pdo, 'movements');
+    $hasMovimentacoes = tableExists($pdo, TABLE_MOVIMENTACOES);
+    $hasMovements = tableExists($pdo, LEGACY_TABLE_MOVEMENTS);
 
     if (!$hasMovimentacoes && $hasMovements) {
-        if (foreignKeyExists($pdo, 'movements', 'fk_movements_equipment')) {
-            $pdo->exec('ALTER TABLE movements DROP FOREIGN KEY fk_movements_equipment');
+        if (foreignKeyExists($pdo, LEGACY_TABLE_MOVEMENTS, LEGACY_FK_MOVEMENTS_EQUIPMENT)) {
+            $pdo->exec(sprintf(
+                'ALTER TABLE %s DROP FOREIGN KEY %s',
+                LEGACY_TABLE_MOVEMENTS,
+                LEGACY_FK_MOVEMENTS_EQUIPMENT
+            ));
         }
 
-        $pdo->exec('RENAME TABLE movements TO movimentacoes');
+        $pdo->exec(sprintf('RENAME TABLE %s TO %s', LEGACY_TABLE_MOVEMENTS, TABLE_MOVIMENTACOES));
         $hasMovimentacoes = true;
     }
 
-    if ($hasMovimentacoes && !foreignKeyExists($pdo, 'movimentacoes', 'fk_movimentacoes_equipamento')) {
-        if (foreignKeyExists($pdo, 'movimentacoes', 'fk_movements_equipment')) {
-            $pdo->exec('ALTER TABLE movimentacoes DROP FOREIGN KEY fk_movements_equipment');
+    if ($hasMovimentacoes && !foreignKeyExists($pdo, TABLE_MOVIMENTACOES, FK_MOVIMENTACOES_EQUIPAMENTO)) {
+        if (foreignKeyExists($pdo, TABLE_MOVIMENTACOES, LEGACY_FK_MOVEMENTS_EQUIPMENT)) {
+            $pdo->exec(sprintf(
+                'ALTER TABLE %s DROP FOREIGN KEY %s',
+                TABLE_MOVIMENTACOES,
+                LEGACY_FK_MOVEMENTS_EQUIPMENT
+            ));
         }
 
-        $pdo->exec(
-            'ALTER TABLE movimentacoes
-             ADD CONSTRAINT fk_movimentacoes_equipamento
-             FOREIGN KEY (equipment_id) REFERENCES equipamentos(id) ON DELETE CASCADE'
-        );
+        $pdo->exec(sprintf(
+            'ALTER TABLE %s
+             ADD CONSTRAINT %s
+             FOREIGN KEY (equipment_id) REFERENCES %s(id) ON DELETE CASCADE',
+            TABLE_MOVIMENTACOES,
+            FK_MOVIMENTACOES_EQUIPAMENTO,
+            TABLE_EQUIPAMENTOS
+        ));
     }
 }
 
@@ -172,7 +194,7 @@ function foreignKeyExists(PDO $pdo, string $tableName, string $constraintName): 
 
 function seedDatabase(PDO $pdo): void
 {
-    $count = (int) $pdo->query('SELECT COUNT(*) FROM equipamentos')->fetchColumn();
+    $count = (int) $pdo->query(sprintf('SELECT COUNT(*) FROM %s', TABLE_EQUIPAMENTOS))->fetchColumn();
     if ($count > 0) {
         return;
     }
@@ -215,13 +237,19 @@ function seedDatabase(PDO $pdo): void
     ];
 
     $insert = $pdo->prepare(
-        'INSERT INTO equipamentos (code, type, name, serial_number, status, holder_name, location_name, notes, ocs_reference, created_at, updated_at)
-         VALUES (:code, :type, :name, :serial_number, :status, :holder_name, :location_name, :notes, :ocs_reference, :created_at, :updated_at)'
+        sprintf(
+            'INSERT INTO %s (code, type, name, serial_number, status, holder_name, location_name, notes, ocs_reference, created_at, updated_at)
+             VALUES (:code, :type, :name, :serial_number, :status, :holder_name, :location_name, :notes, :ocs_reference, :created_at, :updated_at)',
+            TABLE_EQUIPAMENTOS
+        )
     );
 
     $movementInsert = $pdo->prepare(
-        'INSERT INTO movimentacoes (equipment_id, previous_holder, new_holder, previous_location, new_location, previous_status, new_status, change_reason, changed_at)
-         VALUES (:equipment_id, :previous_holder, :new_holder, :previous_location, :new_location, :previous_status, :new_status, :change_reason, :changed_at)'
+        sprintf(
+            'INSERT INTO %s (equipment_id, previous_holder, new_holder, previous_location, new_location, previous_status, new_status, change_reason, changed_at)
+             VALUES (:equipment_id, :previous_holder, :new_holder, :previous_location, :new_location, :previous_status, :new_status, :change_reason, :changed_at)',
+            TABLE_MOVIMENTACOES
+        )
     );
 
     foreach ($seedEquipments as $equipment) {
@@ -285,7 +313,7 @@ function seedOcsMock(): void
 
 function allEquipments(?string $statusFilter = null, ?string $search = null): array
 {
-    $sql = 'SELECT * FROM equipamentos WHERE 1 = 1';
+    $sql = sprintf('SELECT * FROM %s WHERE 1 = 1', TABLE_EQUIPAMENTOS);
     $params = [];
 
     if ($statusFilter) {
@@ -308,7 +336,7 @@ function allEquipments(?string $statusFilter = null, ?string $search = null): ar
 
 function equipmentById(int $id): ?array
 {
-    $stmt = db()->prepare('SELECT * FROM equipamentos WHERE id = :id');
+    $stmt = db()->prepare(sprintf('SELECT * FROM %s WHERE id = :id', TABLE_EQUIPAMENTOS));
     $stmt->execute(['id' => $id]);
     $equipment = $stmt->fetch();
 
@@ -317,7 +345,7 @@ function equipmentById(int $id): ?array
 
 function equipmentByCode(string $code): ?array
 {
-    $stmt = db()->prepare('SELECT * FROM equipamentos WHERE code = :code');
+    $stmt = db()->prepare(sprintf('SELECT * FROM %s WHERE code = :code', TABLE_EQUIPAMENTOS));
     $stmt->execute(['code' => trim($code)]);
     $equipment = $stmt->fetch();
 
@@ -326,7 +354,9 @@ function equipmentByCode(string $code): ?array
 
 function movementsForEquipment(int $equipmentId): array
 {
-    $stmt = db()->prepare('SELECT * FROM movimentacoes WHERE equipment_id = :equipment_id ORDER BY changed_at DESC, id DESC');
+    $stmt = db()->prepare(
+        sprintf('SELECT * FROM %s WHERE equipment_id = :equipment_id ORDER BY changed_at DESC, id DESC', TABLE_MOVIMENTACOES)
+    );
     $stmt->execute(['equipment_id' => $equipmentId]);
 
     return $stmt->fetchAll();
@@ -335,10 +365,10 @@ function movementsForEquipment(int $equipmentId): array
 function dashboardStats(): array
 {
     $stats = [
-        'total' => (int) db()->query('SELECT COUNT(*) FROM equipamentos')->fetchColumn(),
-        'ativos' => (int) db()->query("SELECT COUNT(*) FROM equipamentos WHERE status = 'ativo'")->fetchColumn(),
-        'manutencao' => (int) db()->query("SELECT COUNT(*) FROM equipamentos WHERE status = 'manutencao'")->fetchColumn(),
-        'sem_responsavel' => (int) db()->query("SELECT COUNT(*) FROM equipamentos WHERE TRIM(holder_name) = ''")->fetchColumn(),
+        'total' => (int) db()->query(sprintf('SELECT COUNT(*) FROM %s', TABLE_EQUIPAMENTOS))->fetchColumn(),
+        'ativos' => (int) db()->query(sprintf("SELECT COUNT(*) FROM %s WHERE status = 'ativo'", TABLE_EQUIPAMENTOS))->fetchColumn(),
+        'manutencao' => (int) db()->query(sprintf("SELECT COUNT(*) FROM %s WHERE status = 'manutencao'", TABLE_EQUIPAMENTOS))->fetchColumn(),
+        'sem_responsavel' => (int) db()->query(sprintf("SELECT COUNT(*) FROM %s WHERE TRIM(holder_name) = ''", TABLE_EQUIPAMENTOS))->fetchColumn(),
     ];
 
     return $stats;
@@ -348,7 +378,9 @@ function insights(): array
 {
     $items = [];
 
-    $withoutHolder = db()->query("SELECT code, name FROM equipamentos WHERE TRIM(holder_name) = '' ORDER BY updated_at DESC")->fetchAll();
+    $withoutHolder = db()->query(
+        sprintf("SELECT code, name FROM %s WHERE TRIM(holder_name) = '' ORDER BY updated_at DESC", TABLE_EQUIPAMENTOS)
+    )->fetchAll();
     foreach ($withoutHolder as $equipment) {
         $items[] = [
             'level' => 'warning',
@@ -357,7 +389,9 @@ function insights(): array
         ];
     }
 
-    $maintenance = db()->query("SELECT code, name, location_name FROM equipamentos WHERE status = 'manutencao' ORDER BY updated_at ASC")->fetchAll();
+    $maintenance = db()->query(
+        sprintf("SELECT code, name, location_name FROM %s WHERE status = 'manutencao' ORDER BY updated_at ASC", TABLE_EQUIPAMENTOS)
+    )->fetchAll();
     foreach ($maintenance as $equipment) {
         $items[] = [
             'level' => 'info',
@@ -396,17 +430,23 @@ function saveEquipment(array $payload, ?int $id = null): int
 
     if ($current) {
         $stmt = $pdo->prepare(
-            'UPDATE equipamentos
+            sprintf(
+                'UPDATE %s
              SET code = :code, type = :type, name = :name, serial_number = :serial_number, status = :status,
                  holder_name = :holder_name, location_name = :location_name, notes = :notes, ocs_reference = :ocs_reference, updated_at = :updated_at
-             WHERE id = :id'
+             WHERE id = :id',
+                TABLE_EQUIPAMENTOS
+            )
         );
         $stmt->execute($data + ['updated_at' => $now, 'id' => $id]);
         $equipmentId = $id;
     } else {
         $stmt = $pdo->prepare(
-            'INSERT INTO equipamentos (code, type, name, serial_number, status, holder_name, location_name, notes, ocs_reference, created_at, updated_at)
-             VALUES (:code, :type, :name, :serial_number, :status, :holder_name, :location_name, :notes, :ocs_reference, :created_at, :updated_at)'
+            sprintf(
+                'INSERT INTO %s (code, type, name, serial_number, status, holder_name, location_name, notes, ocs_reference, created_at, updated_at)
+                 VALUES (:code, :type, :name, :serial_number, :status, :holder_name, :location_name, :notes, :ocs_reference, :created_at, :updated_at)',
+                TABLE_EQUIPAMENTOS
+            )
         );
         $stmt->execute($data + ['created_at' => $now, 'updated_at' => $now]);
         $equipmentId = (int) $pdo->lastInsertId();
@@ -438,8 +478,11 @@ function saveEquipment(array $payload, ?int $id = null): int
 function recordMovement(int $equipmentId, array $payload): void
 {
     $stmt = db()->prepare(
-        'INSERT INTO movimentacoes (equipment_id, previous_holder, new_holder, previous_location, new_location, previous_status, new_status, change_reason, changed_at)
-         VALUES (:equipment_id, :previous_holder, :new_holder, :previous_location, :new_location, :previous_status, :new_status, :change_reason, :changed_at)'
+        sprintf(
+            'INSERT INTO %s (equipment_id, previous_holder, new_holder, previous_location, new_location, previous_status, new_status, change_reason, changed_at)
+             VALUES (:equipment_id, :previous_holder, :new_holder, :previous_location, :new_location, :previous_status, :new_status, :change_reason, :changed_at)',
+            TABLE_MOVIMENTACOES
+        )
     );
 
     $stmt->execute([
@@ -488,7 +531,10 @@ function quickMoveEquipment(int $equipmentId, array $payload): bool
     }
 
     $stmt = db()->prepare(
-        'UPDATE equipamentos SET holder_name = :holder_name, location_name = :location_name, status = :status, updated_at = :updated_at WHERE id = :id'
+        sprintf(
+            'UPDATE %s SET holder_name = :holder_name, location_name = :location_name, status = :status, updated_at = :updated_at WHERE id = :id',
+            TABLE_EQUIPAMENTOS
+        )
     );
 
     $stmt->execute([
